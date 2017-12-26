@@ -12,7 +12,7 @@ rm -rf out
 export USE_CCACHE=1
 # Ninja may cause problems
 export USE_NINJA=false
-export TWRP_VERSION=3.2.0
+export TWRP_VERSION=3.2.1
 # Start building
 source build/envsetup.sh
 lunch omni_a5ultexx-eng
