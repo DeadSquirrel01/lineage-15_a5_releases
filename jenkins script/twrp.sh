@@ -24,12 +24,14 @@ sha256sum twrp_$TWRP_VERSION_$(date +%Y%m%d)_a5ultexx.tar >> ../../sha256sums_$(
 
 # Publish to github
 export GITHUB_TOKEN=# Secret :P
+export GITHUB_USER=DeadSquirrel01
+export GITHUB_REPO=lineage-15_a5_releases
 
 echo "Uploading the twrp tar into github release"
-github-release upload --user DeadSquirrel01 --repo "lineage-15_a5_releases" --tag $(date +%Y%m%d) --name "twrp_$TWRP_VERSION_$(date +%Y%m%d)_a5ultexx.tar" --file "twrp_$TWRP_VERSION_$(date +%Y%m%d)_a5ultexx.tar"
+github-release upload --user $GITHUB_USER --repo $GITHUB_REPO --tag $(date +%Y%m%d) --name "twrp_$TWRP_VERSION_$(date +%Y%m%d)_a5ultexx.tar" --file "twrp_$TWRP_VERSION_$(date +%Y%m%d)_a5ultexx.tar"
 
 echo "Uploading the sha256sums into github release"
-github-release upload --user DeadSquirrel01 --repo "lineage-15_a5_releases" --tag $(date +%Y%m%d) --name "sha256sums_$(date +%Y%m%d).txt" --file "../../sha256sums_$(date +%Y%m%d).txt"
+github-release upload --user $GITHUB_USER --repo $GITHUB_REPO --tag $(date +%Y%m%d) --name "sha256sums_$(date +%Y%m%d).txt" --file "../../sha256sums_$(date +%Y%m%d).txt"
 
 # Remove the now useless sha256sums file
 rm -f ../../sha256sums_*.txt

@@ -42,12 +42,20 @@ brunch a5ultexx
 
 # Publish to github
 export GITHUB_TOKEN=# Secret :P
+export GITHUB_USER=DeadSquirrel01
+export GITHUB_REPO=lineage-15_a5_releases
 
 # Publish the release
 # Needs to have github-release installed
 echo "Create a new release in https://github.com/DeadSquirrel01/lineage-15_a5_releases"
-github-release release --user DeadSquirrel01 --repo "lineage-15_a5_releases" --tag $(date +%Y%m%d) --name "lineageos 15.0 $(date +%Y%m%d)"
+github-release release --user $GITHUB_USER --repo $GITHUB_REPO --tag $(date +%Y%m%d) --name "lineageos 15.0 $(date +%Y%m%d)"
 
 echo "Uploading the lineage 15 zip into github release"
-github-release upload --user DeadSquirrel01 --repo "lineage-15_a5_releases" --tag $(date +%Y%m%d) --name "LineageOS 15 $(date +%Y%m%d) SM-A500FU" --file $ROM_PATH
+github-release upload --user $GITHUB_USER --repo $GITHUB_REPO --tag $(date +%Y%m%d) --name "LineageOS 15 $(date +%Y%m%d) SM-A500FU" --file $ROM_PATH
+
+cd lineage-15_a5_releases
+git add changelog.txt
+git commit -m "Update changelog to $(date +%Y%m%d) release"
+git push https://$GITHUB_USER:$GITHUB_TOKEN@github.com/$GITHUB_USER/$GITHUB_REPO.git
+cd ..
 
