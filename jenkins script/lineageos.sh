@@ -43,7 +43,7 @@ mkdir $TMPDIR/zip # Gives error if the dir is already present, because zip dir n
 cd $TMPDIR/zip
 cp $ROM_PATH $TMPDIR/los15.zip
 unzip ../los15.zip
-sed -i '/package_extract_file("boot.img", "\/dev\/block\/bootdevice\/by-name\/boot");/a ui_print("SINCE IN 8.1 LEGACY CODE IS FULLY REMOVED, THE ROM DOES NOT PROVIDE CAMERA APP");\nui_print("BECAUSE IT WOULD NOT WORK AT ALL");\nui_print("SO, DOWNLOAD A CAMERA APP FROM PLAY STORE e.g. OPEN CAMERA TO USE CAMERA");' META-INF/com/google/android/updater-script
+sed -i '/package_extract_file("boot.img", "\/dev\/block\/bootdevice\/by-name\/boot");/a ui_print("IMPORTANT: DEFAULT CAMERA APP ONLY TAKES PHOTOS");\nui_print("SO, DOWNLOAD A CAMERA APP FROM PLAY STORE e.g. OPEN CAMERA TO TAKE VIDEOS");\nui_print("TESTED CAMERAS: Open camera, footej camera");' META-INF/com/google/android/updater-script
 zip -r lineage-15.1-$(date +%Y%m%d)-UNOFFICIAL-a5ultexx.zip *
 
 # Create a file containing the sha256sum of the zip.
