@@ -1,2 +1,14 @@
+EVERY RELEASE INCLUDES LAST LINEAGEOS UPDATES!
+
+2nd release: 20180111
+Lineage 15.0 > 15.1
+Enable always on display
+Enable burn-in protection for AOD
+Use xml audio configs
+Enable Samsung Doze
+Temporary disable sdcardfs
+TODO: SELinux enforcing
+      Re-enable sdcardfs
+
 1st release: 20171226
-Lineageos 15 for A5
+First release
