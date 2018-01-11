@@ -8,6 +8,7 @@ mkdir $TMPDIR
 REPO="$WORKSPACE/lineageos-15.1/.repo/repo"
 export PATH=/bin:/sbin:/usr/bin:/usr/sbin:$REPO:$PATH
 FBASE_PATCH="0001-fw-base-Enable-home-button-wake.patch" # patch to wake device with home button
+CAMERA_PATCH="0001-Revert-Camera-Remove-dead-legacy-code.patch" # We have legacy camera
 cd lineageos-15.1
 # Clean patched dirs that have repopicks
 cd frameworks/av
@@ -24,22 +25,27 @@ repo sync --force-sync
 # Temporary remove disable AudioFX build: it crashes ad cause reboots in 8.1. Will be re-enabled later when gets stable
 perl -i -ne 'print unless /^    AudioFX/; ' vendor/lineage/config/common.mk
 cp device/samsung/a5-common/patches/$FBASE_PATCH frameworks/base/
+cp device/samsung/a5-common/patches/$CAMERA_PATCH frameworks/av/
 # Apply patch
 (cd frameworks/base && patch -N -p1 < $FBASE_PATCH) # Also ignores patching if patch is already applied
+(cd frameworks/av && patch -N -p1 < $CAMERA_PATCH)
 rm frameworks/base/$FBASE_PATCH
+rm frameworks/av/$CAMERA_PATCH
+# Fix build error in hardware/samsung
+sed -i 's=void rilEventAddWakeup_helper=//void rilEventAddWakeup_helper=g' hardware/samsung/ril/include/libril/ril_ex.h
 # Cleanup from previous build
-# sha256sums' file should be removed by twrp project. Remove it here, too, in case twrp build fails
+
+# sha256sums' file should be removed by twrp job. Remove it here, too, in case twrp build fails
 rm -f ../../sha256sums_*.txt
 rm -rf out
 # For unknown reasons to me, with jenkins some headers aren't copied during build
-mkdir -p out/target/product/a5ultexx/obj/
-yes | cp -a kernel/samsung/msm8916 out/target/product/a5ultexx/obj/KERNEL_OBJ
 export USE_CCACHE=1
 # define -Xmx4g because my computer doesn't have enough ram for jack
 export JACK_SERVER_VM_ARGUMENTS="-Dfile.encoding=UTF-8 -XX:+TieredCompilation -Xmx4g"
 export ANDROID_JACK_VM_ARGS="$JACK_SERVER_VM_ARGUMENTS"
 # lineage 15 zip path
 export ROM_PATH="$WORKSPACE/lineageos-15.1/out/target/product/a5ultexx/lineage-15.1-*-UNOFFICIAL-a5ultexx.zip"
+export ROM_ZIP="LineageOS_15.1_$(date +%Y%m%d)_SM-A500FU.zip"
 # Kill jack server if active and start it (still for low ram reasons)
 ./prebuilts/sdk/tools/jack-admin kill-server || true
 ./prebuilts/sdk/tools/jack-admin start-server || true
@@ -53,12 +59,12 @@ mkdir $TMPDIR/zip # Gives error if the dir is already present, because zip dir n
 cd $TMPDIR/zip
 cp $ROM_PATH $TMPDIR/los15.zip
 unzip ../los15.zip
-sed -i '/package_extract_file("boot.img", "\/dev\/block\/bootdevice\/by-name\/boot");/a ui_print("IMPORTANT: DEFAULT CAMERA APP ONLY TAKES PHOTOS");\nui_print("SO, DOWNLOAD A CAMERA APP FROM PLAY STORE e.g. OPEN CAMERA TO TAKE VIDEOS");\nui_print("TESTED CAMERAS: Open camera, footej camera");' META-INF/com/google/android/updater-script
-zip -r lineage-15.1-$(date +%Y%m%d)-UNOFFICIAL-a5ultexx.zip *
+sed -i '/package_extract_file("boot.img", "\/dev\/block\/bootdevice\/by-name\/boot");/a ui_print("IMPORTANT: DEFAULT CAMERA APP ONLY TAKES PHOTOS");\nui_print("SO, DOWNLOAD A CAMERA APP FROM PLAY STORE e.g. OPEN CAMERA TO TAKE VIDEOS");\nui_print("TESTED CAMERAS: Open camera, Footej camera");' META-INF/com/google/android/updater-script
+zip -r $ROM_ZIP *
 
 # Create a file containing the sha256sum of the zip.
 # We create it outside the project directory because twrp job will add his twrp sha256sums
-sha256sum lineage-15.1-*-UNOFFICIAL-a5ultexx.zip > ../../sha256sums_$(date +%Y%m%d).txt
+sha256sum $ROM_ZIP > ../../../sha256sums_$(date +%Y%m%d).txt
 
 # Publish to github
 export GITHUB_TOKEN=# Secret :P
@@ -71,11 +77,21 @@ echo "Create a new release in https://github.com/DeadSquirrel01/lineage-15_a5_re
 github-release release --user $GITHUB_USER --repo $GITHUB_REPO --tag $(date +%Y%m%d) --name "lineageos 15.1 $(date +%Y%m%d)"
 
 echo "Uploading the lineage 15 zip into github release"
-github-release upload --user $GITHUB_USER --repo $GITHUB_REPO --tag $(date +%Y%m%d) --name "LineageOS 15.1 $(date +%Y%m%d) SM-A500FU" --file lineage-15.1-*-UNOFFICIAL-a5ultexx.zip
+github-release upload --user $GITHUB_USER --repo $GITHUB_REPO --tag $(date +%Y%m%d) --name $ROM_ZIP --file $ROM_ZIP
 
-cd lineage-15_a5_releases
+cd ../../lineageos-15.1/lineage-15_a5_releases
 git add changelog.txt
 git commit -m "Update changelog to $(date +%Y%m%d) release"
 git push https://$GITHUB_USER:$GITHUB_TOKEN@github.com/$GITHUB_USER/$GITHUB_REPO.git
 cd ..
+
+# Copy Build log
+wget ${BUILD_URL}/consoleText -O build_log_$(date +%Y%m%d).txt
+echo "Uploading build log"
+github-release upload --user $GITHUB_USER --repo $GITHUB_REPO --tag $(date +%Y%m%d) --name build_log_$(date +%Y%m%d).txt --file build_log_$(date +%Y%m%d).txt
+rm build_log_*.txt
+
+cd $WORKSPACE
+# Clean temporary dir again
+rm -rf $TMPDIR
 
