@@ -1,5 +1,10 @@
 EVERY RELEASE INCLUDES LAST LINEAGEOS UPDATES!
 
+3rd release: 20180210
+Fix video recording with stock camera app
+Use round icons instead of square ones
+Now you don't need to swipe all the device lenght (fixed in lineage tree)
+
 2nd release: 20180111
 Lineage 15.0 > 15.1
 Enable always on display
